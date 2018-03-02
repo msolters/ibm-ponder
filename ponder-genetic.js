@@ -1,7 +1,7 @@
 const N=6
 const maxScore = N*Math.pow(2, N)
-const P=25      // solution population size
-const D=15       // number of solutions replaced each cycle
+const P=16      // solution population size
+const D=~~(P/2)       // number of solutions replaced each cycle
 const mutationChanceDefault = 0.001
 let mutationChance = mutationChanceDefault
 let replacing = 0
@@ -143,34 +143,36 @@ function getSolution() {
       let new_s1 = []
       let new_s2 = []
 
-      // Perform cross over
-      let slicePoint = Math.floor(Math.random()*s1.length)
-      for (let k=0; k<s1.length; k++) {
-        if (k < slicePoint) {
-          new_s1.push(s1[k])
-          new_s2.push(s2[k])
-        } else {
-          new_s1.push(s2[k])
-          new_s2.push(s1[k])
+      // Cross over
+      if (Math.random() < 0.5) {
+        //  Single point cross over
+        let slicePoint = Math.floor(Math.random()*s1.length)
+        for (let k=0; k<s1.length; k++) {
+          if (k < slicePoint) {
+            new_s1.push(s1[k])
+            new_s2.push(s2[k])
+          } else {
+            new_s1.push(s2[k])
+            new_s2.push(s1[k])
+          }
         }
-
-        // Apply random mutation
-        // if (Math.random() < mutationChance) {
-        //   new_s1[k] = getRandomSymbol()
-        // }
-        // if (Math.random() < mutationChance) {
-        //   new_s2[k] = getRandomSymbol()
-        // }
+      } else {
+        // Interpolation cross over
+        for (let k=0; k<s1.length; k++) {
+          if (Math.random() < 0.5) {
+            new_s1.push(s1[k])
+            new_s2.push(s2[k])
+          } else {
+            new_s1.push(s2[k])
+            new_s2.push(s1[k])
+          }
+        }
       }
 
       //  Replace weakest solutions
       let [idx, idx2] = getWeakestSolutionIndex(scores)
       solutions[idx] = new_s1
       solutions[idx2] = new_s2
-      // solutions[idx] = (Math.random() < 0.5) ? new_s1 : new_s2
-      // solutions[getRandomSolution(inverseLikelihood)] = new_s1
-      // solutions[getRandomSolution(inverseLikelihood)] = new_s2
-      // newSolutions.push(newSolution)
 
       // Mutate
       for (let s of solutions) {
@@ -184,13 +186,12 @@ function getSolution() {
     let _maxScore = Math.max(...scores)/maxScore
     isMaxScoreDifferent(_maxScore)
     // if (staticGenerations > 0 && staticGenerations % 100 == 0) {
-    if (Math.random() < .2) {
+    if (Math.random() < .01) {
       // replace the weakest solution with a random one
-      replacing = Math.floor(Math.random()*P)
-      // replacing++
+      replacing = Math.min( Math.floor(Math.random()*P), P-1 )
       for (let k=0; k<replacing; k++) {
         let m = Math.random()
-        let idx = Math.floor(Math.random()*P)
+        let idx = getRandomSolution(inverseLikelihood)//Math.floor(Math.random()*P)
         if (m < 0.25) {
           let p = Math.floor(Math.random()*solutions[idx].length)
           let left = solutions[idx].slice(0, p)
