@@ -1,7 +1,7 @@
 const N=6
 const maxScore = N*Math.pow(2, N)
-const P=50      // solution population size
-const D=10       // number of solutions replaced each cycle
+const P=25      // solution population size
+const D=15       // number of solutions replaced each cycle
 const mutationChanceDefault = 0.001
 let mutationChance = mutationChanceDefault
 let replacing = 0
@@ -183,11 +183,12 @@ function getSolution() {
     }
     let _maxScore = Math.max(...scores)/maxScore
     isMaxScoreDifferent(_maxScore)
-    if (staticGenerations > 0 && staticGenerations % 10 == 0) {
+    // if (staticGenerations > 0 && staticGenerations % 100 == 0) {
+    if (Math.random() < .2) {
       // replace the weakest solution with a random one
-      // let replacing = Math.floor(Math.random()*P)
-      replacing++
-      for (let k=0; k<Math.min(replacing, P); k++) {
+      replacing = Math.floor(Math.random()*P)
+      // replacing++
+      for (let k=0; k<replacing; k++) {
         let m = Math.random()
         let idx = Math.floor(Math.random()*P)
         if (m < 0.25) {
@@ -207,8 +208,8 @@ function getSolution() {
       // printSolutions(solutions)
     }
     // solutions = newSolutions
+    printSolutions(solutions)
     console.log(`(${replacing}/${P}) ${100*_maxScore}%`)
-    // printSolutions(solutions)
   }
 }
 
